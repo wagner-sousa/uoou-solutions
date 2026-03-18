@@ -1,0 +1,70 @@
+services:
+  php:
+    container_name: app-uoou-php
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - ../..:/workspaces:cached
+      - ./php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+
+    # # Overrides default command so things don't shut down after the process ends.
+    # command: sleep infinity
+    working_dir: /workspaces/be-sistemas-challenge
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    # Caso não for usar devcontainer, use a rede padrão (app-uoou-network).
+    # network_mode: service:db
+
+    # Start the Laravel dev server so nginx can proxy to it.
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  nginx:
+    container_name: app-uoou-nginx
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - node
+      - mysql
+      - php
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    # Use default network so port publishing works when forwarding devcontainer ports.
+    # network_mode: service:mysql
+
+  node:
+    container_name: app-uoou-node
+    image: node:latest
+    restart: unless-stopped
+    volumes:
+      - ../..:/workspaces:cached
+    working_dir: /workspaces
+    command: sleep infinity
+
+  mysql:
+    container_name: app-uoou-mysql
+    image: mysql
+    restart: unless-stopped
+    volumes:
+      - uoou-solutions-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: uoou-solutions
+      MYSQL_USER: uoou-solutions
+      MYSQL_PASSWORD: uoou-solutions
+
+    # Add "forwardPorts": ["3306"] to **devcontainer.json** to forward uoou-solutions locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+  
+volumes:
+  uoou-solutions-mysql-data:
+
+networks:
+  default:
+    name: uoou-solutions-network
