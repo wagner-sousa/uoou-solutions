@@ -1,3 +1,16 @@
 body {
-    background-color: skyblue;
+    background-color: #f8f9fa;
+}
+
+.table > :not(caption) > * > * {
+    vertical-align: middle;
+}
+
+.card-header h1, .card-header h2, .card-header h3,
+.card-header h4, .card-header h5, .card-header h6 {
+    margin-bottom: 0;
+}
+
+footer {
+    margin-top: auto;
 }
