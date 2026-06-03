@@ -3,17 +3,25 @@
 namespace App\Service;
 
 use App\Entity\Product;
+use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 
 class StripeService
 {
-    private bool $offline = false;
-    private StripeClient $client;
+    private bool $offline;
+    private ?StripeClient $client = null;
 
     public function __construct()
     {
-        $key = getenv('STRIPE_SECRET_KEY');
-        $this->client = new StripeClient($key);
+        $this->offline = $this->shouldRunOffline();
+
+        if (!$this->offline) {
+            $key = $this->loadSecretKey();
+            if (!$key) {
+                throw new \RuntimeException('STRIPE_SECRET_KEY environment variable must be set when not in offline mode.');
+            }
+            $this->client = new StripeClient($key);
+        }
     }
 
     public function syncProduct(Product $product): void
@@ -24,12 +32,46 @@ class StripeService
             return;
         }
 
-        $stripeProductId = $this->syncStripeProduct($product);
-        $stripePriceId = $this->createStripePrice($product, $stripeProductId);
+        if ($product->getStripeProductId() && $this->stripeProductExists($product->getStripeProductId())) {
+            $this->updateStripeProduct($product);
+
+            return;
+        }
+
+        $this->createStripeProduct($product);
+    }
+
+    private function stripeProductExists(string $stripeProductId): bool
+    {
+        try {
+            $this->client->products->retrieve($stripeProductId);
+
+            return true;
+        } catch (InvalidRequestException) {
+            return false;
+        }
+    }
+
+    private function createStripeProduct(Product $product): void
+    {
+        $stripeProductId = $this->createProductInStripe($product);
+        $stripePriceId = $this->createPriceInStripe($product, $stripeProductId);
 
         $product
             ->setStripeProductId($stripeProductId)
             ->setStripePriceId($stripePriceId);
+    }
+
+    private function updateStripeProduct(Product $product): void
+    {
+        $this->client->products->update($product->getStripeProductId(), [
+            'name' => $product->getName(),
+            'description' => $product->getDescription(),
+            'images' => $product->getImage() ? [$product->getImage()] : [],
+            'metadata' => array_filter([
+                'stock_quantity' => (string) $product->getStockQuantity(),
+            ], static fn ($value) => null !== $value),
+        ]);
     }
 
     public function deleteProduct(Product $product): void
@@ -78,28 +120,23 @@ class StripeService
             ->setStripePriceId('price_test_'.($product->getId() ?? uniqid('', true)));
     }
 
-    private function syncStripeProduct(Product $product): string
+    private function createProductInStripe(Product $product): string
     {
-        $payload = [
+        $stripeProduct = $this->client->products->create([
             'name' => $product->getName(),
             'description' => $product->getDescription(),
             'images' => $product->getImage() ? [$product->getImage()] : [],
             'metadata' => array_filter([
                 'local_product_id' => $product->getId() ? (string) $product->getId() : null,
-                'stock_quantity' => $product->getStockQuantity(),
+                'stock_quantity' => (string) $product->getStockQuantity(),
             ], static fn ($value) => null !== $value),
-        ];
-
-        if ($product->getStripeProductId()) {
-            $stripeProduct = $this->client->products->update($product->getStripeProductId(), $payload);
-        } else {
-            $stripeProduct = $this->client->products->create($payload);
-        }
+        ]);
 
         return $stripeProduct->id;
     }
 
-    private function createStripePrice(Product $product, string $stripeProductId): string
+
+    private function createPriceInStripe(Product $product, string $stripeProductId): string
     {
         $stripePrice = $this->client->prices->create([
             'unit_amount' => $product->getPriceInCents(),
@@ -122,13 +159,36 @@ class StripeService
 
     private function shouldRunOffline(): bool
     {
-        $env = getenv('APP_ENV') ?: ($_SERVER['APP_ENV'] ?? null);
+        $flag = $this->getEnv('STRIPE_OFFLINE');
+
+        if ($flag === '1' || strcasecmp((string) $flag, 'true') === 0) {
+            return true;
+        }
+
+        if ($flag === '0' || strcasecmp((string) $flag, 'false') === 0) {
+            return false;
+        }
+
+        $env = $this->getEnv('APP_ENV') ?: 'dev';
+
         if ($env === 'test') {
             return true;
         }
 
-        $flag = getenv('STRIPE_OFFLINE');
+        if ($env === 'dev') {
+            return !$this->loadSecretKey();
+        }
 
-        return $flag === '1' || strcasecmp((string) $flag, 'true') === 0;
+        return false;
+    }
+
+    private function loadSecretKey(): string
+    {
+        return $this->getEnv('STRIPE_SECRET_KEY');
+    }
+
+    private function getEnv(string $name): string
+    {
+        return $_SERVER[$name] ?? $_ENV[$name] ?? '';
     }
 }
