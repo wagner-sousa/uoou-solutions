@@ -1,47 +1,79 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Product index{% endblock %}
+{% block title %}{{ 'Products'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>Product index</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">{{ 'Products'|trans }}</h1>
+        <a href="{{ path('app_product_new') }}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg me-1" viewBox="0 0 16 16"><path d="M8 1a.5.5 0 0 1 .5.5v6h6a.5.5 0 0 1 0 1h-6v6a.5.5 0 0 1-1 0v-6h-6a.5.5 0 0 1 0-1h6v-6A.5.5 0 0 1 8 1z"/></svg>
+            {{ 'Create new'|trans }}
+        </a>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Image</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for product in products %}
-            <tr>
-                <td>{{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.description }}</td>
-                <td>{% if product.image %}<img src="{{ product.image }}" alt="{{ product.name }}" style="max-width: 120px;">{% endif %}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.stockQuantity }}</td>
-                <td>
-                    <a href="{{ path('app_product_show', {'id': product.id}) }}">show</a>
-                    <a href="{{ path('app_product_edit', {'id': product.id}) }}">edit</a>
-                    <form action="{{ path('app_product_checkout', {'id': product.id}) }}" method="post" style="display:inline">
-                        <input type="hidden" name="_token" value="{{ csrf_token('checkout' ~ product.id) }}">
-                        <button type="submit">Comprar</button>
-                    </form>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_product_new') }}">Create new</a>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>{{ 'Id'|trans }}</th>
+                    <th>{{ 'Image'|trans }}</th>
+                    <th>{{ 'Name'|trans }}</th>
+                    <th>{{ 'Description'|trans }}</th>
+                    <th>{{ 'Price'|trans }}</th>
+                    <th>{{ 'Stock'|trans }}</th>
+                    <th class="text-center">{{ 'Actions'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>
+                        {% if product.image %}
+                            <img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail" style="max-width: 80px; max-height: 80px; object-fit: cover;">
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold">{{ product.name }}</td>
+                    <td class="text-muted">{{ product.description|slice(0, 60) ~ (product.description|length > 60 ? '...' : '') }}</td>
+                    <td class="fw-bold text-success">R$ {{ product.price|number_format(2, ',', '.') }}</td>
+                    <td>
+                        {% if product.stockQuantity > 10 %}
+                            <span class="badge bg-success">{{ product.stockQuantity }}</span>
+                        {% elseif product.stockQuantity > 0 %}
+                            <span class="badge bg-warning text-dark">{{ product.stockQuantity }}</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ 'Out of stock'|trans }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1 justify-content-center">
+                            <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-sm btn-outline-primary" title="{{ 'show'|trans }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/></svg>
+                            </a>
+                            <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-sm btn-outline-warning" title="{{ 'edit'|trans }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z"/></svg>
+                            </a>
+                            <form action="{{ path('app_product_checkout', {'id': product.id}) }}" method="post" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('checkout' ~ product.id) }}">
+                                <button type="submit" class="btn btn-sm btn-success" title="{{ 'Buy'|trans }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="alert alert-info text-center mb-0">
+                            {{ 'No products found. Create your first product!'|trans }}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

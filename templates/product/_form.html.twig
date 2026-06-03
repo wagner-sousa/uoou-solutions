@@ -1,4 +1,32 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+    <div class="row g-3">
+        <div class="col-md-6">
+            {{ form_row(form.name) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.price) }}
+        </div>
+        <div class="col-12">
+            {{ form_row(form.description, {'attr': {'rows': 4}}) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.image) }}
+            {% if form.vars.data.image %}
+                <div class="mt-2">
+                    <img src="{{ form.vars.data.image }}" alt="{{ form.vars.data.name }}" class="img-thumbnail" style="max-height: 120px;">
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.stockQuantity) }}
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+        <button class="btn btn-primary px-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg me-1" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/></svg>
+            {{ (button_label|default('Save'))|trans }}
+        </button>
+        <a href="{{ path('app_product_index') }}" class="btn btn-outline-secondary px-4">{{ 'Cancel'|trans }}</a>
+    </div>
 {{ form_end(form) }}
