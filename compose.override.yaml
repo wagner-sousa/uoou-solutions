@@ -6,6 +6,12 @@ services:
       - "5432"
 ###< doctrine/doctrine-bundle ###
 
+###> uoou-app ###
+  php:
+    ports:
+      - "8000"
+###< uoou-app ###
+
 ###> symfony/mailer ###
   mailer:
     image: axllent/mailpit

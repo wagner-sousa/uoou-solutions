@@ -1,16 +1,21 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/php-mariadb
 {
-	"name": "PHP & MariaDB",
-	"dockerComposeFile": "docker-compose.yml",
+	"name": "Uoou Solutions",
+	"dockerComposeFile": [
+        "../compose.yaml",
+        "../compose.override.yaml"
+    ],
 	"service": "php",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+	"features": {
+        "ghcr.io/devcontainers/features/node:2": {}
+    },
 
-	// For use with PHP or Apache (e.g.php -S localhost:8080 or apache2ctl start)
-	"forwardPorts": [8080, 3306]
+	// For use with PHP or Apache (e.g. php -S localhost:8000 or apache2ctl start)
+	"forwardPorts": [8000, 5432]
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "sudo chmod a+x \"$(pwd)\" && sudo rm -rf /var/www/html && sudo ln -s \"$(pwd)\" /var/www/html"
