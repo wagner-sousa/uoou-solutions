@@ -4,7 +4,7 @@ FROM php:8.5-apache-trixie
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y --no-install-recommends \
         build-essential libpq-dev postgresql-client \
-        git unzip libzip-dev zlib1g-dev libicu-dev pkg-config ca-certificates autoconf \
+        git unzip libzip-dev zlib1g-dev libicu-dev pkg-config ca-certificates autoconf curl \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions needed by Symfony + PostgreSQL
