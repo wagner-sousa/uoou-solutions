@@ -7,52 +7,39 @@ namespace DoctrineMigrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 final class Version20260318184730 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create products and messenger_messages tables';
     }
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql(<<<'SQL'
-            CREATE TABLE products (
-              id INT AUTO_INCREMENT NOT NULL,
-              name VARCHAR(255) NOT NULL,
-              description LONGTEXT DEFAULT NULL,
-              image VARCHAR(255) DEFAULT NULL,
-              price DOUBLE PRECISION NOT NULL,
-              stock_quantity DOUBLE PRECISION NOT NULL,
-              PRIMARY KEY (id)
-            ) DEFAULT CHARACTER SET utf8mb4
-        SQL);
-        $this->addSql(<<<'SQL'
-            CREATE TABLE messenger_messages (
-              id BIGINT AUTO_INCREMENT NOT NULL,
-              body LONGTEXT NOT NULL,
-              headers LONGTEXT NOT NULL,
-              queue_name VARCHAR(190) NOT NULL,
-              created_at DATETIME NOT NULL,
-              available_at DATETIME NOT NULL,
-              delivered_at DATETIME DEFAULT NULL,
-              INDEX IDX_75EA56E0FB7336F0E3BD61CE16BA31DBBF396750 (
-                queue_name, available_at, delivered_at,
-                id
-              ),
-              PRIMARY KEY (id)
-            ) DEFAULT CHARACTER SET utf8mb4
-        SQL);
+        $table = $schema->createTable('products');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('name', 'string', ['length' => 255]);
+        $table->addColumn('description', 'text', ['notnull' => false]);
+        $table->addColumn('image', 'string', ['length' => 255, 'notnull' => false]);
+        $table->addColumn('price', 'float');
+        $table->addColumn('stock_quantity', 'float');
+        $table->setPrimaryKey(['id']);
+
+        $table = $schema->createTable('messenger_messages');
+        $table->addColumn('id', 'bigint', ['autoincrement' => true]);
+        $table->addColumn('body', 'text');
+        $table->addColumn('headers', 'text');
+        $table->addColumn('queue_name', 'string', ['length' => 190]);
+        $table->addColumn('created_at', 'datetime');
+        $table->addColumn('available_at', 'datetime');
+        $table->addColumn('delivered_at', 'datetime', ['notnull' => false]);
+        $table->setPrimaryKey(['id']);
+        $table->addIndex(['queue_name', 'available_at', 'delivered_at', 'id'], 'IDX_75EA56E0FB7336F0E3BD61CE16BA31DBBF396750');
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP TABLE products');
-        $this->addSql('DROP TABLE messenger_messages');
+        $schema->dropTable('products');
+        $schema->dropTable('messenger_messages');
     }
 }
