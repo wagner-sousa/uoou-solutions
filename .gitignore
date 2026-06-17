@@ -247,3 +247,8 @@ public
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+###> uoou-solutions ###
+README.model.md
+###< uoou-solutions ###
+
