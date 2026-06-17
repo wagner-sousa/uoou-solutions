@@ -50,7 +50,7 @@ final class ProductControllerTest extends WebTestCase
             'product[stockQuantity]' => 5,
         ]);
 
-        self::assertResponseRedirects('/products');
+        self::assertResponseRedirects('/products', 303);
         self::assertGreaterThanOrEqual(1, $this->productRepository->count([]));
     }
 }
