@@ -6,7 +6,7 @@ Symfony 8.0 e-commerce (PHP 8.4, Doctrine ORM 3, Twig, PostgreSQL, Stripe).
 
 | Action | Command |
 |--------|---------|
-| Run tests | `php bin/phpunit` or `composer exec phpunit |
+| Run tests | `php bin/phpunit` or `composer exec phpunit` |
 | Run migrations | `php bin/console doctrine:migrations:migrate` |
 | Make entity | `php bin/console make:entity` |
 | Make migration | `php bin/console make:migration` |
