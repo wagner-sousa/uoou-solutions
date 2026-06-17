@@ -18,6 +18,7 @@ final class ProductControllerTest extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->client->disableReboot();
         $this->manager = static::getContainer()->get('doctrine')->getManager();
         $this->productRepository = $this->manager->getRepository(Product::class);
 
