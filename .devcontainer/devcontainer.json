@@ -3,6 +3,7 @@
 {
 	"name": "Uoou Solutions",
 	"dockerComposeFile": [
+        "docker-compose.yml",
         "../compose.yaml",
         "../compose.override.yaml"
     ],
