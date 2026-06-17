@@ -1,6 +1,6 @@
 # UOOU Solutions — Agent Guide
 
-Symfony 8.0 e-commerce (PHP 8.4, Doctrine ORM 3, Twig, PostgreSQL, Stripe).
+Symfony 8.0 e-commerce (PHP 8.4+, Doctrine ORM 3, Twig, PostgreSQL, Stripe).
 
 ## Quick commands
 
